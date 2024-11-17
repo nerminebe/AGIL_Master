@@ -1,0 +1,50 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: api-gateway
+  zipkin:
+    base-url: http://localhost:9411
+  cloud:
+    gateway:
+      routes:
+        - id: ums-public
+          uri: lb://UMS
+          predicates:
+            - Path=/ums/**
+
+        - id: lms-public
+          uri: lb://LMS
+          predicates:
+            - Path=/lms/**
+
+        - id: pms-public
+          uri: lb://PMS
+          predicates:
+            - Path=/pms/**
+
+        - id: cms-public
+          uri: lb://CMS
+          predicates:
+            - Path=/cms/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            maxAge: 3600
+    inetutils:
+      default-hostname: localhost
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+      #defaultZone: http://eureka:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true

@@ -1,0 +1,68 @@
+version: '3.7'
+
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: umsdbagil
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1536M
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: agil
+    ports:
+      - "5432:5432"
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1536M
+    ports:
+      - "9411:9411"
+
+  rabbitmq:
+    image: 'rabbitmq:3.6-management-alpine'
+    container_name: RabbitMQ_Container
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1536M
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+
+  apigateway:
+    build: ./apigateway
+    container_name: apigateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - eureka
+      - zipkin
+
+  eureka:
+    build: ./eureka
+    container_name: eureka
+    ports:
+      - "8761:8761"
+
+  ums:
+    build: ./UMS
+    container_name: ums
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka
+      - postgres
